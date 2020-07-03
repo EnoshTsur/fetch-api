@@ -8,6 +8,8 @@ function fetchData(url) {
         return await response.json()
     }
 }
+
+
 function fetchWithBody(url, body) {
     return async method => {
         const response = await fetch(url, {
@@ -17,25 +19,35 @@ function fetchWithBody(url, body) {
             },
             body: JSON.stringify(body)
         })
-
         return await response.json()
     }
 }
 
+
 function App() {
 
     const json = { firstName: 'koomar2', lastName: 'ranjes2', age: 23, }
+
+    const [user, setUser] = React.useState({})
+
     React.useEffect(() => {
 
-        fetchWithBody("http://localhost:8080/user/update/9", json)("PUT")
-            .then(data => console.log(data))
-            .catch(error => console.log(error))
+        fetchData("http://localhost:8080/user/findById/3")("GET")
+            .then(data => setUser(data.content))
+            .catch(error => setUser(error))
 
     }, [])
+
+    function showUserData(user) {
+        return typeof user === 'object' ?
+            Object.entries(user).map(([k, v]) => `${k}: ${v}`).join(', ') :
+            (<p>{user}</p>)
+    }
 
 
     return (
         <div>
+            { showUserData(user) }
         </div>
     );
 }
