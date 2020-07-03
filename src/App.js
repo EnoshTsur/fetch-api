@@ -1,31 +1,38 @@
 import React from 'react';
 
-async function get(url) {
-    const response = await fetch(url)
-    return await response.json()
+function fetchData(url) {
+    return async method => {
+        const response = await fetch(url, {
+            method,
+        })
+        return await response.json()
+    }
 }
+function fetchWithBody(url, body) {
+    return async method => {
+        const response = await fetch(url, {
+            method,
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(body)
+        })
 
-async function post(url, body) {
-    const response = await fetch(url, {
-        method: "POST",
-        headers: {
-            'Content-Type': 'application/json'
-        },
-        body: JSON.stringify(body)
-    })
-
-    return await response.json()
+        return await response.json()
+    }
 }
 
 function App() {
 
+    const json = { firstName: 'koomar2', lastName: 'ranjes2', age: 23, }
     React.useEffect(() => {
-    
-        post("http://localhost:8080/user/add", { firstName: "enosh", lastName: "tsur", age: 30 })
-        .then(data => console.log(data))
-        .catch(error => console.log(error))
-    
-    },  [])
+
+        fetchWithBody("http://localhost:8080/user/update/9", json)("PUT")
+            .then(data => console.log(data))
+            .catch(error => console.log(error))
+
+    }, [])
+
 
     return (
         <div>
