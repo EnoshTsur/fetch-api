@@ -60,13 +60,46 @@ function useFetch(method) {
     return FetchData
 }
 
+function useBodyFetch(method) {
+
+    function FetchData(url, body) {
+
+        const [response, setResponse, ] = React.useState({ ...responseObject, })
+
+        React.useEffect(() => {
+            async function sendRequest() {
+                const data = await fetch(url, {
+                    method,
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(body)
+                })
+
+                return await data.json()
+            }
+
+            sendRequest()
+            .then(res => setResponse({ ...response, data: res, loading: false, }))
+            .catch(err => setResponse({...response, error: err, loading: false, }))
+
+        }, [])
+
+        return response
+    }
+
+    return FetchData
+}
+
 const useGet = useFetch('GET')
 const useDelete = useFetch('DELETE')
 
+const usePost = useBodyFetch('POST')
+const usePut = useBodyFetch('PUT')
 
 function App() {
 
-    const { data, loading, error } = useDelete('http://localhost:8080/user/delete/3')
+    const { data, loading, error } = useDelete('http://localhost:8080/user/add', { firstName: 'Avi', lastName: null, age: 34 })
     // const { data, loading, error} = usePost('http://localhost:8080/user/add', { firstName: 'itay', lastName: 'gooby', age: 23, })
 
 
