@@ -1,4 +1,5 @@
 import React from 'react';
+import Loader from './components/Loader/Loader'
 
 function fetchData(url) {
     return async method => {
@@ -23,33 +24,54 @@ function fetchWithBody(url, body) {
     }
 }
 
+const responseObject = Object.freeze({
+    data: null,
+    loading: true,
+    error: null ,
+})
 
-function App() {
+function useGet(url) {
 
-    const json = { firstName: 'koomar2', lastName: 'ranjes2', age: 23, }
-
-    const [user, setUser] = React.useState({})
+    const [ response, setResponse, ] = React.useState({ ...responseObject })
 
     React.useEffect(() => {
+        async function fetchData() {
+            const data = await fetch(url)
+            return await data.json()
+        } 
 
-        fetchData("http://localhost:8080/user/findById/3")("GET")
-            .then(data => setUser(data.content))
-            .catch(error => setUser(error))
+        fetchData()
+        .then(res => setResponse({...response, data: res , loading: false}))
+        .catch(err => setResponse({...response, error: err, loading: false, }))
 
     }, [])
 
-    function showUserData(user) {
-        return typeof user === 'object' ?
-            Object.entries(user).map(([k, v]) => `${k}: ${v}`).join(', ') :
-            (<p>{user}</p>)
+    return response
+}
+
+function App() {
+
+    const { data, loading, error } = useGet('http://localhost:8080/user/findById/3')
+
+    if(error) {
+        console.log('!!! ', error)
     }
 
+    if(data) {
+        console.log('!!! ', data)
+    }
 
-    return (
+     return (
         <div>
-            { showUserData(user) }
+            {
+                loading && (
+                    <Loader />
+                )
+            }
         </div>
     );
 }
+
+
 
 export default App;
