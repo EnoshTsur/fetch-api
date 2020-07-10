@@ -97,7 +97,7 @@ const useDelete = useFetch('DELETE')
 const usePost = useBodyFetch('POST')
 const usePut = useBodyFetch('PUT')
 
-function renderFecth(method) {
+function renderFetch(method) {
 
     function Fetch({ url, children, }) {
         const [response, setResponse,] = React.useState({ ...responseObject, })
@@ -126,7 +126,40 @@ function renderFecth(method) {
     return Fetch
 }
 
-const FetcComponent = renderFecth('GET')
+function renderBodyFetch(method) {
+
+    function Fetch({ url, body, children, }) {
+        const [response, setResponse,] = React.useState({ ...responseObject, })
+
+        React.useEffect(() => {
+            async function sendRequest() {
+                const data = await fetch(url, {
+                    method,
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(body)
+                })
+                return await data.json()
+            }
+
+            sendRequest()
+                .then(res => setResponse({ ...response, data: res, loading: false }))
+                .catch(err => setResponse({ ...response, error: err, loading: false, }))
+
+        }, [])
+
+        return (
+            <>
+                {children(response)}
+            </>
+        )
+    }
+
+    return Fetch
+}
+
+
 
 function User({ response }) {
     const { data, error, loading } = response
@@ -143,23 +176,31 @@ function User({ response }) {
     }
 
     const { success, content, } = data
-    return success ? Object.entries(content).map(([k, v]) => (
-        <p>{k}: {v}</p>
-    )) : (<p>{content}</p>)
+    return success ? <ShowObject object={content} /> : (<p>{content}</p>)
+}
 
+function ShowObject({ object }) {
+    return Object.entries(object).map(([k, v]) => <h1 key={k}>{k}: {v}</h1>)
 }
 
 function App() {
 
+    const FetchGet = renderFetch('GET')
+    const FetchPost = renderBodyFetch('POST')
+
+    const user = { 
+        firstName: 'Nehamya',
+        lastName: 'Yavniel',
+        age: 53,
+    }
+
     return (
         <div>
-            <FetcComponent url="http://localhost:8080/user/findById/3" >
+            <FetchPost url="http://localhost:8080/user/add" body={user} >
                 {response => <User response={response} />}
-            </FetcComponent>
+            </FetchPost>
         </div>
     );
 }
-
-
 
 export default App;
