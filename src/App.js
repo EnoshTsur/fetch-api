@@ -27,7 +27,7 @@ function fetchWithBody(url, body) {
 const responseObject = Object.freeze({
     data: null,
     loading: true,
-    error: null ,
+    error: null,
 })
 
 
@@ -37,7 +37,7 @@ function useFetch(method) {
 
     // second function 
     function FetchData(url) {
-        const [ response, setResponse, ] = React.useState({ ...responseObject })
+        const [response, setResponse,] = React.useState({ ...responseObject })
 
         React.useEffect(() => {
             async function sendRequest() {
@@ -45,12 +45,12 @@ function useFetch(method) {
                     method
                 })
                 return await data.json()
-            } 
-    
+            }
+
             sendRequest()
-            .then(res => setResponse({...response, data: res , loading: false}))
-            .catch(err => setResponse({...response, error: err, loading: false, }))
-    
+                .then(res => setResponse({ ...response, data: res, loading: false }))
+                .catch(err => setResponse({ ...response, error: err, loading: false, }))
+
         }, [])
 
         return response
@@ -64,7 +64,7 @@ function useBodyFetch(method) {
 
     function FetchData(url, body) {
 
-        const [response, setResponse, ] = React.useState({ ...responseObject, })
+        const [response, setResponse,] = React.useState({ ...responseObject, })
 
         React.useEffect(() => {
             async function sendRequest() {
@@ -80,8 +80,8 @@ function useBodyFetch(method) {
             }
 
             sendRequest()
-            .then(res => setResponse({ ...response, data: res, loading: false, }))
-            .catch(err => setResponse({...response, error: err, loading: false, }))
+                .then(res => setResponse({ ...response, data: res, loading: false, }))
+                .catch(err => setResponse({ ...response, error: err, loading: false, }))
 
         }, [])
 
@@ -97,27 +97,49 @@ const useDelete = useFetch('DELETE')
 const usePost = useBodyFetch('POST')
 const usePut = useBodyFetch('PUT')
 
+function renderFecth(method) {
+
+    function Fetch({ url, children, }) {
+        const [response, setResponse,] = React.useState({ ...responseObject, })
+
+        React.useEffect(() => {
+            async function sendRequest() {
+                const data = await fetch(url, {
+                    method
+                })
+                return await data.json()
+            }
+
+            sendRequest()
+                .then(res => setResponse({ ...response, data: res, loading: false }))
+                .catch(err => setResponse({ ...response, error: err, loading: false, }))
+
+        }, [])
+
+        return (
+            <>
+                {children(response)}
+            </>
+        )
+    }
+
+    return Fetch
+}
+
+const FetcComponent = renderFecth('GET')
+
 function App() {
 
-    const { data, loading, error } = useDelete('http://localhost:8080/user/add', { firstName: 'Avi', lastName: null, age: 34 })
-    // const { data, loading, error} = usePost('http://localhost:8080/user/add', { firstName: 'itay', lastName: 'gooby', age: 23, })
-
-
-    if(error) {
-        console.log('!!! ', error)
-    }
-
-    if(data) {
-        console.log('!!! ', data)
-    }
-
-     return (
+    return (
         <div>
-            {
-                loading && (
-                    <Loader />
-                )
-            }
+            <FetcComponent url="http://localhost:8080/user/findById/3" >
+                {({data, error, loading })=> {
+                    if(data) {
+                        
+                    }
+                    return <h1>{JSON.stringify(data)}</h1>
+                }}
+            </FetcComponent>
         </div>
     );
 }
