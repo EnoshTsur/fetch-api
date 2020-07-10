@@ -128,17 +128,33 @@ function renderFecth(method) {
 
 const FetcComponent = renderFecth('GET')
 
+function User({ response }) {
+    const { data, error, loading } = response
+
+    if (error) {
+        console.error('[Error]: ', error)
+        return null
+    }
+
+    if (loading) {
+        return (
+            <Loader />
+        )
+    }
+
+    const { success, content, } = data
+    return success ? Object.entries(content).map(([k, v]) => (
+        <p>{k}: {v}</p>
+    )) : (<p>{content}</p>)
+
+}
+
 function App() {
 
     return (
         <div>
             <FetcComponent url="http://localhost:8080/user/findById/3" >
-                {({data, error, loading })=> {
-                    if(data) {
-                        
-                    }
-                    return <h1>{JSON.stringify(data)}</h1>
-                }}
+                {response => <User response={response} />}
             </FetcComponent>
         </div>
     );
